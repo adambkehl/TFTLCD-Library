@@ -930,7 +930,10 @@ void Adafruit_TFTLCD::setRotation(uint8_t x) {
 }
 
 #ifdef read8isFunctionalized
-#define read8(x) x = read8fn()
+  #ifdef read8
+    #undef read8
+  #endif
+  #define read8(x) x = read8fn()
 #endif
 
 // Because this function is used infrequently, it configures the ports for

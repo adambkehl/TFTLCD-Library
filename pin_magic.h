@@ -530,7 +530,7 @@
     write8(hi);                                                                \
     write8(lo);                                                                \
     hi = (d) >> 8;                                                             \
-    lo = (d);                                                                  \
+    lo = (uint8_t)(d);                                                         \
     CD_DATA;                                                                   \
     write8(hi);                                                                \
     write8(lo);                                                                \
