@@ -66,25 +66,25 @@ Adafruit_TFTLCD::Adafruit_TFTLCD(uint8_t cs, uint8_t cd, uint8_t wr, uint8_t rd,
 }
 
 // Constructor for shield (fixed LCD control lines)
-Adafruit_TFTLCD::Adafruit_TFTLCD(void) : Adafruit_GFX(TFTWIDTH, TFTHEIGHT) {
-  init();
-}
+//Adafruit_TFTLCD::Adafruit_TFTLCD(void) : Adafruit_GFX(TFTWIDTH, TFTHEIGHT) {
+//  init();
+//}
 
 // Initialization common to both shield & breakout configs
 void Adafruit_TFTLCD::init(void) {
 
-#ifdef USE_ADAFRUIT_SHIELD_PINOUT
-  CS_IDLE; // Set all control bits to idle state
-  WR_IDLE;
-  RD_IDLE;
-  CD_DATA;
-  digitalWrite(5, HIGH); // Reset line
-  pinMode(A3, OUTPUT);   // Enable outputs
-  pinMode(A2, OUTPUT);
-  pinMode(A1, OUTPUT);
-  pinMode(A0, OUTPUT);
-  pinMode(5, OUTPUT);
-#endif
+//#ifdef USE_ADAFRUIT_SHIELD_PINOUT
+//  CS_IDLE; // Set all control bits to idle state
+//  WR_IDLE;
+//  RD_IDLE;
+//  CD_DATA;
+//  digitalWrite(5, HIGH); // Reset line
+//  pinMode(A3, OUTPUT);   // Enable outputs
+//  pinMode(A2, OUTPUT);
+//  pinMode(A1, OUTPUT);
+//  pinMode(A0, OUTPUT);
+//  pinMode(5, OUTPUT);
+//#endif
 
   setWriteDir(); // Set up LCD data port(s) for WRITE operations
 
@@ -117,40 +117,40 @@ void Adafruit_TFTLCD::begin() {
 	delay(150);
 	writeRegister8(ILI9341_DISPLAYON, 0);
 	delay(500);
-	setAddrWindow(0, 0, TFTWIDTH - 1, TFTHEIGHT - 1);
-	return;
+	setAddressWindow(0, 0, 319, 239);
 }
 
-void Adafruit_TFTLCD::reset(void) {
+void Adafruit_TFTLCD::reset() {
   CS_IDLE;
   WR_IDLE;
   RD_IDLE;
 
-#ifdef USE_ADAFRUIT_SHIELD_PINOUT
-  digitalWrite(5, LOW);
-  delay(2);
-  digitalWrite(5, HIGH);
-#else
+//#ifdef USE_ADAFRUIT_SHIELD_PINOUT
+//  digitalWrite(5, LOW);
+//  delay(2);
+//  digitalWrite(5, HIGH);
+//#else
   if (_reset) {
     digitalWrite(_reset, LOW);
     delay(2);
     digitalWrite(_reset, HIGH);
   }
-#endif
+//#endif
 
   // Data transfer sync
   CS_ACTIVE;
   CD_COMMAND;
   write8(0x00);
-  for (uint8_t i = 0; i < 3; i++)
+  for (uint8_t i = 0; i < 3; i++) {
     WR_STROBE; // Three extra 0x00s
+  }
   CS_IDLE;
 }
 
 // Sets the LCD address window (and address counter, on 932X).
 // Relevant to rect/screen fills and H/V lines.  Input coordinates are
 // assumed pre-sorted (e.g. x2 >= x1).
-void Adafruit_TFTLCD::setAddrWindow(int x1, int y1, int x2, int y2) {
+void Adafruit_TFTLCD::setAddressWindow(int x1, int y1, int x2, int y2) {
 	CS_ACTIVE;
 	uint32_t t;
 
@@ -175,7 +175,7 @@ void Adafruit_TFTLCD::setAddrWindow(int x1, int y1, int x2, int y2) {
 #define HX8347G_COLADDREND_LO 0x05
 #define HX8347G_ROWADDREND_HI 0x08
 #define HX8347G_ROWADDREND_LO 0x09
-void Adafruit_TFTLCD::setLR(void) {
+void Adafruit_TFTLCD::setLR() {
 	CS_ACTIVE;
 	writeRegisterPair(HX8347G_COLADDREND_HI, HX8347G_COLADDREND_LO, _width - 1);
 	writeRegisterPair(HX8347G_ROWADDREND_HI, HX8347G_ROWADDREND_LO, _height - 1);
@@ -183,7 +183,7 @@ void Adafruit_TFTLCD::setLR(void) {
 }
 
 // Fast block fill operation for fillScreen, fillRect, H/V line, etc.
-// Requires setAddrWindow() has previously been called to set the fill
+// Requires setAddressWindow() has previously been called to set the fill
 // bounds.  'len' is inclusive, MUST be >= 1.
 void Adafruit_TFTLCD::flood(uint16_t color, uint32_t len) {
   uint16_t blocks;
@@ -260,7 +260,7 @@ void Adafruit_TFTLCD::drawFastHLine(int16_t x, int16_t y, int16_t length, uint16
     length = x2 - x + 1;
   }
 
-  setAddrWindow(x, y, x2, y);
+  setAddressWindow(x, y, x2, y);
   flood(color, length);
   setLR();
 }
@@ -281,14 +281,14 @@ void Adafruit_TFTLCD::drawFastVLine(int16_t x, int16_t y, int16_t length, uint16
     length = y2 - y + 1;
   }
 
-  setAddrWindow(x, y, x, y2);
+  setAddressWindow(x, y, x, y2);
   flood(color, length);
   setLR();
 }
 
 void Adafruit_TFTLCD::fillRect(int16_t x1, int16_t y1, int16_t w, int16_t h, uint16_t fillcolor) {
 
-	int16_t x2, y2;
+    uint16_t x2, y2;
 
 	// Initial off-screen clipping
 	if ((w <= 0) || (h <= 0) || (x1 >= _width) || (y1 >= _height) || ((x2 = x1 + w - 1) < 0) || ((y2 = y1 + h - 1) < 0))
@@ -310,8 +310,8 @@ void Adafruit_TFTLCD::fillRect(int16_t x1, int16_t y1, int16_t w, int16_t h, uin
 		h = y2 - y1 + 1;
 	}
 
-	setAddrWindow(x1, y1, x2, y2);
-	flood(fillcolor, (uint32_t)w * (uint32_t)h);
+	setAddressWindow(x1, y1, x2, y2);
+	flood(fillcolor, w * h);
 	setLR();
 }
 
@@ -320,8 +320,10 @@ void Adafruit_TFTLCD::fillScreen(uint16_t color) {
 	// address window must be set for each drawing operation.  However,
 	// this display takes rotation into account for the parameters, no
 	// need to do extra rotation math here.
-	setAddrWindow(0, 0, _width - 1, _height - 1);
-	flood(color, (long)TFTWIDTH * (long)TFTHEIGHT);
+	setAddressWindow(0, 0, 319, 239);
+	//setAddressWindow(0, 0, _width - 1, _height - 1);
+	//flood(color, (long)TFTWIDTH * (long)TFTHEIGHT);
+	flood(color, 76800);
 }
 
 void Adafruit_TFTLCD::drawPixel(int16_t x, int16_t y, uint16_t color) {
@@ -331,7 +333,7 @@ void Adafruit_TFTLCD::drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 	CS_ACTIVE;
 
-	setAddrWindow(x, y, _width - 1, _height - 1);
+	setAddressWindow(x, y, _width - 1, _height - 1);
 	CS_ACTIVE;
 	CD_COMMAND;
 	write8(0x2C);
@@ -394,7 +396,7 @@ void Adafruit_TFTLCD::setRotation(uint8_t x) {
 	}
 	writeRegister8(ILI9341_MADCTL, t); // MADCTL
 	// For 9341, init default full-screen address window:
-	setAddrWindow(0, 0, _width - 1, _height - 1); // CS_IDLE happens here
+	setAddressWindow(0, 0, _width - 1, _height - 1); // CS_IDLE happens here
 
 }
 

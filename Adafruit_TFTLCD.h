@@ -6,18 +6,8 @@
 #ifndef _ADAFRUIT_TFTLCD_H_
 #define _ADAFRUIT_TFTLCD_H_
 
-#if ARDUINO >= 100
 #include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
-
 #include <Adafruit_GFX.h>
-
-// **** IF USING THE LCD BREAKOUT BOARD, COMMENT OUT THIS NEXT LINE. ****
-// **** IF USING THE LCD SHIELD, LEAVE THE LINE ENABLED:             ****
-
-//#define USE_ADAFRUIT_SHIELD_PINOUT 1
 
 class Adafruit_TFTLCD : public Adafruit_GFX {
 
@@ -36,7 +26,7 @@ public:
   void setRegisters16(uint16_t *ptr, uint8_t n);
   void setRotation(uint8_t x);
   // These methods are public in order for BMP examples to work:
-  void setAddrWindow(int x1, int y1, int x2, int y2);
+  void setAddressWindow(int x1, int y1, int x2, int y2);
   void pushColors(uint16_t *data, uint8_t len, boolean first);
 
   uint32_t readReg(uint8_t r);
